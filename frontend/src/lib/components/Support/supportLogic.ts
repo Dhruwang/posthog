@@ -23,6 +23,29 @@ export const TargetAreaToName = {
 export type supportTicketTargetArea = keyof typeof TargetAreaToName
 export type supportTicketKind = 'bug' | 'feedback'
 
+export const URLPathToTargetArea: Record<string, supportTicketTargetArea> = {
+    insights: 'analytics',
+    recordings: 'session_reply',
+    dashboard: 'analytics',
+    feature_flags: 'feature_flags',
+    experiments: 'experiments',
+    'web-performance': 'session_reply',
+    events: 'analytics',
+    'data-management': 'data_management',
+    cohorts: 'cohorts',
+    annotations: 'analytics',
+    persons: 'data_integrity',
+    groups: 'data_integrity',
+    app: 'apps',
+    apps: 'apps', // TODO: it currently is project/apps for some reason :shrug
+    toolbar: 'analytics',
+}
+
+export function getURLPathToTargetArea(pathname: string): supportTicketTargetArea | undefined {
+    const first_part = pathname.split('/')[1]
+    return URLPathToTargetArea[first_part]
+}
+
 export const supportLogic = kea<supportLogicType>([
     path(['lib', 'components', 'support', 'supportLogic']),
     connect(() => ({
@@ -71,7 +94,7 @@ export const supportLogic = kea<supportLogicType>([
         openSupportForm: async ({ kind, target_area }) => {
             actions.resetSendSupportRequest({
                 kind: kind ? kind : undefined,
-                target_area: target_area ? target_area : undefined,
+                target_area: target_area ? target_area : getURLPathToTargetArea(window.location.pathname),
                 message: '',
             })
         },
